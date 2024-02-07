@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
 SCREEN_SIZE = [600, 450]
 CORDS, SCALE = sys.argv[1:]
-# ПРИМЕР ВВОДА В КОНСОЛЬ
 # 30.401486,59.963203 0.002,0.002
 
 
