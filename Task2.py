@@ -1,55 +1,64 @@
 import os
 import sys
+import pygame
 import requests
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
-SCREEN_SIZE = [600, 450]
+MAP_FILE = "map.png"
+MAP_REQUEST = "http://static-maps.yandex.ru/1.x/?"
 CORDS, SCALE = sys.argv[1:]
 # 30.401486,59.963203 0.002,0.002
+SCALE = [float(el) for el in SCALE.split(',')]
 
 
-class Example(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.getImage()
-        self.initUI()
-
-    def getImage(self):
-        params = {"ll": CORDS,
-                  "spn": SCALE,
-                  "l": "map"}
-
-        map_request = "http://static-maps.yandex.ru/1.x/?"
-        response = requests.get(map_request, params=params)
-
-        if not response:
-            print("Ошибка выполнения запроса:")
-            print(map_request)
-            print("Http статус:", response.status_code, "(", response.reason, ")")
-            sys.exit(1)
-
-        # Запишем полученное изображение в файл.
-        self.map_file = "map.png"
-        with open(self.map_file, "wb") as file:
-            file.write(response.content)
-
-    def initUI(self):
-        self.setGeometry(100, 100, *SCREEN_SIZE)
-        self.setWindowTitle('Отображение карты')
-        self.pixmap = QPixmap(self.map_file)
-        self.image = QLabel(self)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
-        self.image.setPixmap(self.pixmap)
+SPN = [0.002, 0.003, 0.006, 0.01, 0.02, 0.04, 0.08, 0.1, 0.16, 0.2]
 
 
-    def closeEvent(self, event):
-        os.remove(self.map_file)
+def image_show(c):
+    global SCALE
+
+    params = {"ll": c,
+              "spn": ','.join([str(el) for el in SCALE]),
+              "l": "map"}
+    response = requests.get(MAP_REQUEST, params=params)
+    if not response:
+        print("Ошибка выполнения запроса:")
+        print(MAP_REQUEST)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+    # Запишем полученное изображение в файл.
+    with open(MAP_FILE, "wb") as file:
+        file.write(response.content)
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    sys.exit(app.exec())
+image_show(CORDS)  # создали файл с нужным изображением
+
+
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_PAGEUP:
+                for el in SPN[::-1]:
+                    if el < SCALE[0]:
+                        SCALE[0] = el
+                        SCALE[1] = el
+                        break
+
+            if event.key == pygame.K_PAGEDOWN:
+                for el in SPN:
+                    if el > SCALE[0]:
+                        SCALE[0] = el
+                        SCALE[1] = el
+                        break
+            image_show(CORDS)
+    screen.blit(pygame.image.load(MAP_FILE), (0, 0))
+    pygame.display.flip()
+
+
+# Удаляем за собой файл с изображением.
+os.remove(MAP_FILE)
