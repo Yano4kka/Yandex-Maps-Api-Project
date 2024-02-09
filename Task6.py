@@ -18,10 +18,11 @@ L = "map"
 options_group = pygame.sprite.Group()
 SEARCH_RESULT = False
 movement_is_done = False
+CENTER = ''
 
 
 def search(input_search):
-    global CORDS
+    global CORDS, CENTER
     req = 'https://geocode-maps.yandex.ru/1.x/?'
     params = {"geocode": input_search,
               "spn": ','.join([str(el) for el in SCALE]),
@@ -31,19 +32,20 @@ def search(input_search):
     json_response = response.json()
     coods = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["Point"]["pos"]
     CORDS = [float(el) for el in coods.split(" ")]
+    CENTER = [float(el) for el in coods.split(" ")]
     image_show()
     geocode_inf()
 
 
 def image_show():  # вывод картинки на экран
     global SCALE, CORDS, RESPONSE, L
-    if not movement_is_done:
+    if not movement_is_done and CORDS == CENTER or movement_is_done and CORDS == CENTER:
         params = {"ll": ','.join([str(el) for el in CORDS]),
                   "spn": ','.join([str(el) for el in SCALE]),
                   "l": L,
                   "size": '600,400',
                   "pt": ','.join([str(el) for el in CORDS]) + ',org'}
-    elif movement_is_done:
+    elif movement_is_done and CORDS != CENTER:
         params = {"ll": ','.join([str(el) for el in CORDS]),
                   "spn": ','.join([str(el) for el in SCALE]),
                   "l": L,
@@ -77,7 +79,6 @@ def geocode_inf():  # получаем нужную информацию с ге
     corners = JSON_RESPONSE['response']["GeoObjectCollection"]["metaDataProperty"]["GeocoderResponseMetaData"]["boundedBy"]["Envelope"]
     LOWER_CORNER = [float(el) for el in corners["lowerCorner"].split()]
     UPPER_CORNER = [float(el) for el in corners["upperCorner"].split()]
-
 
 g = Options('гибрид.png', 50, 200, options_group)
 m = Options('схема.png', 115, 200, options_group)
