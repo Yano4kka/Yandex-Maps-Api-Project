@@ -94,14 +94,10 @@ running = True
 need_search = False
 input_search = ''
 
-
-
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         if event.type == pygame.KEYDOWN:
             if need_search:
                 if event.key == pygame.K_BACKSPACE:  # если нажат backspace стираем по одному элементу
@@ -173,3 +169,4 @@ while running:
 
 # Удаляем за собой файл с изображением.
 os.remove(MAP_FILE)
+
