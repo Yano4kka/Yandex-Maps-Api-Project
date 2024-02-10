@@ -13,7 +13,11 @@ def print_on_screen(screen, text):
 
 def load_image(name):  # функция для загрузки картинки (взята из учебника)
     fullname = os.path.join('data', name)
-    image = pygame.image.load(fullname)
+    if name == 'сброс.jpg':
+        image = pygame.image.load(fullname)
+        image = pygame.transform.scale(image, (30, 30))
+    else:
+        image = pygame.image.load(fullname)
     return image
 
 

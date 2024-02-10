@@ -39,12 +39,20 @@ def search(input_search):
 
 def image_show():  # вывод картинки на экран
     global SCALE, CORDS, RESPONSE, L
-    if not movement_is_done and CORDS == CENTER or movement_is_done and CORDS == CENTER:
+    if not movement_is_done and CORDS == CENTER:
         params = {"ll": ','.join([str(el) for el in CORDS]),
                   "spn": ','.join([str(el) for el in SCALE]),
                   "l": L,
                   "size": '600,400',
                   "pt": ','.join([str(el) for el in CORDS]) + ',org'}
+
+    elif movement_is_done and abs(CORDS[0] - CENTER[0]) <= 0.0001 and abs(CORDS[1] - CENTER[1]) <= 0.0001:
+        params = {"ll": ','.join([str(el) for el in CORDS]),
+                  "spn": ','.join([str(el) for el in SCALE]),
+                  "l": L,
+                  "size": '600,400',
+                  "pt": ','.join([str(el) for el in CENTER]) + ',org'}
+
     elif movement_is_done and CORDS != CENTER:
         params = {"ll": ','.join([str(el) for el in CORDS]),
                   "spn": ','.join([str(el) for el in SCALE]),
@@ -83,6 +91,7 @@ def geocode_inf():  # получаем нужную информацию с ге
 g = Options('гибрид.png', 50, 200, options_group)
 m = Options('схема.png', 115, 200, options_group)
 s = Options('спутник.png', 170, 200, options_group)
+
 
 pygame.init()
 clock = pygame.time.Clock()
