@@ -27,3 +27,11 @@ class Options(pygame.sprite.Sprite):
         self.image = load_image(im)
         self.rect = self.image.get_rect().move(x, y)
         self.im = im
+
+
+class Options2(pygame.sprite.Sprite):
+    def __init__(self, im, x, y, options_group):
+        super().__init__(options_group)
+        self.image = load_image(im)
+        self.rect = self.image.get_rect().move(x, y)
+        self.im = im
