@@ -90,18 +90,18 @@ def geocode_inf():  # получаем нужную информацию с ге
     corners = resp["metaDataProperty"]["GeocoderResponseMetaData"]["boundedBy"]["Envelope"]
     LOWER_CORNER = [float(el) for el in corners["lowerCorner"].split()]
     UPPER_CORNER = [float(el) for el in corners["upperCorner"].split()]
-
-    ADDRESS = resp["featureMember"][0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["text"]
-    address = ''
-    for el in ADDRESS.split(' '):
-        if len(el) <= 90 and address == '':
-            address += el
-        elif len(el) + len(address.split('\n')[-1]) + 1 <= 90:
-            address += ' ' + el
-        elif len(el) + len(address.split('\n')[-1]) + 1 > 90:
-            address += '\n'
-            address += el
-    ADDRESS = address.split('\n')
+    if not movement_is_done:
+        ADDRESS = resp["featureMember"][0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["text"]
+        address = ''
+        for el in ADDRESS.split(' '):
+            if len(el) <= 90 and address == '':
+                address += el
+            elif len(el) + len(address.split('\n')[-1]) + 1 <= 90:
+                address += ' ' + el
+            elif len(el) + len(address.split('\n')[-1]) + 1 > 90:
+                address += '\n'
+                address += el
+        ADDRESS = address.split('\n')
 
 
 

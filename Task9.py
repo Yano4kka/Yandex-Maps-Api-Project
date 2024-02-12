@@ -2,7 +2,6 @@ import os
 import sys
 import pygame
 import requests
-import json
 from func import print_on_screen, Options, Options2, load_image
 
 MAP_FILE = "map.png"
@@ -84,32 +83,29 @@ def geocode_inf():  # получаем нужную информацию с ге
               "ll": ','.join([str(el) for el in CORDS])}
     response = requests.get(req, params=params)
     JSON_RESPONSE = response.json()
-
-    with open('file.json', 'w') as f:
-        json.dump(JSON_RESPONSE, f)
-
     resp = JSON_RESPONSE['response']["GeoObjectCollection"]
     corners = resp["metaDataProperty"]["GeocoderResponseMetaData"]["boundedBy"]["Envelope"]
     LOWER_CORNER = [float(el) for el in corners["lowerCorner"].split()]
     UPPER_CORNER = [float(el) for el in corners["upperCorner"].split()]
 
-    ADDRESS = resp["featureMember"][0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["text"]
-    address = ''
-    for el in ADDRESS.split(' '):
-        if len(el) <= 90 and address == '':
-            address += el
-        elif len(el) + len(address.split('\n')[-1]) + 1 <= 90:
-            address += ' ' + el
-        elif len(el) + len(address.split('\n')[-1]) + 1 > 90:
-            address += '\n'
-            address += el
-    ADDRESS = address.split('\n')
-    try:
-        POST_INDEX = resp['featureMember'][0]["GeoObject"]['metaDataProperty']["GeocoderMetaData"]['Address']["postal_code"]
-    except KeyError:
-        POST_INDEX = 'не найден'
-    if PRINT_POST_INDEX:
-        ADDRESS.append(f'Почтовый индекс: {POST_INDEX}')
+    if not movement_is_done:
+        ADDRESS = resp["featureMember"][0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["text"]
+        address = ''
+        for el in ADDRESS.split(' '):
+            if len(el) <= 90 and address == '':
+                address += el
+            elif len(el) + len(address.split('\n')[-1]) + 1 <= 90:
+                address += ' ' + el
+            elif len(el) + len(address.split('\n')[-1]) + 1 > 90:
+                address += '\n'
+                address += el
+        ADDRESS = address.split('\n')
+        try:
+            POST_INDEX = resp['featureMember'][0]["GeoObject"]['metaDataProperty']["GeocoderMetaData"]['Address']["postal_code"]
+        except KeyError:
+            POST_INDEX = 'не найден'
+        if PRINT_POST_INDEX:
+            ADDRESS.append(f'Почтовый индекс: {POST_INDEX}')
 
 
 g = Options('гибрид.png', 50, 210, options_group)
@@ -185,8 +181,12 @@ while running:
             if pygame.Rect(650, 45, 30, 30).collidepoint(event.pos):
                 if PRINT_POST_INDEX:
                     PRINT_POST_INDEX = False
+                    if POST_INDEX:
+                        del ADDRESS[-1]
                 elif not PRINT_POST_INDEX:
                     PRINT_POST_INDEX = True
+                    if isinstance(ADDRESS, list):
+                        ADDRESS.append(f'Почтовый индекс: {POST_INDEX}')
 
             '''Поле ввода'''
             if search_field.collidepoint(event.pos):  # коллизия с полем ввода
